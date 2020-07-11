@@ -4,6 +4,7 @@
   "description": "Game Maker Toolkit 202 GameJam",
   "main": "index.js",
   "scripts": {
+    "build": "npx webpack --config=webpack.config.js",
     "test": "npx jest"
   },
   "repository": {
@@ -25,12 +26,14 @@
   "homepage": "https://github.com/GeorgeWL/gmtk-jam-2020#readme",
   "dependencies": {
     "@types/node": "^14.0.22",
-    "awesome-typescript-loader": "^5.2.1",
-    "phaser": "^3.23.0",
-    "source-map-loader": "^1.0.1",
-    "webpack": "^4.43.0"
+    "phaser": "^3.23.0"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.12"
+    "source-map-loader": "^1.0.1",
+    "ts-loader": "^8.0.0",
+    "typescript": "^3.9.6",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
