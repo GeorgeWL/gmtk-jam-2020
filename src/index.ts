@@ -1,23 +1,23 @@
 import 'phaser';
-import HelloWorldScene from './scenes/helloWorldScene';
+import GameScene from './scenes/game';
 
 const gameContainer = document.getElementById('game-window')
 const config = {
   type: Phaser.AUTO,
-  backgroundColor: '#125555',
-  width: 812,
-  height: 375,
-  parent: gameContainer,
+  width: 800,
+  height: 600,
+  transparent: true,
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 200 }
+      gravity: { y: 300 }
     }
   },
-  scene: HelloWorldScene
-};
+  parent: gameContainer,
+  scene: [GameScene]
+}
 
-const game = new Phaser.Game(config);
+export default new Phaser.Game(config)
 if (module.hot) {
   module.hot.accept()
 }
