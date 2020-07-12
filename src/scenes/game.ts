@@ -2,22 +2,26 @@ const GROUND_REF = 'ground'
 const PLAYER_REF = 'player'
 const STAR_REF = 'star'
 const BOMB_REF = 'bomb'
-import starSprite from '../assets/star.png'
-import platformSprite from '../assets/platform.png'
-import bombSprite from '../assets/bomb.png'
-import playerSpriteSheet from '../assets/run-sprites.png'
+const THEME_REF = 'theme'
+import starSprite from '../assets/sprites/star.png'
+import platformSprite from '../assets/sprites/platform.png'
+import bombSprite from '../assets/sprites/bomb.png'
+import playerSpriteSheet from '../assets/sprites/run-sprites.png'
+import themeMusicMp3 from '../assets/audio/theme.mp3'
+import themeMusicOgg from '../assets/audio/theme.ogg'
 import ScoreLabel from './modules/scoreLabel'
 import BombSpawner from './modules/bombSpawner'
-
+import { config } from '../index';
 export default class GameScene extends Phaser.Scene {
-  private player: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group | Phaser.GameObjects.GameObject[] | Phaser.GameObjects.Group[]
-  private platforms: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group | Phaser.GameObjects.GameObject[] | Phaser.GameObjects.Group[]
-  private stars: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group | Phaser.GameObjects.GameObject[] | Phaser.GameObjects.Group[]
+  private player: any
+  private platforms: any
+  private stars: any
   private keybinds: any
   private scoreLabel: ScoreLabel
   private bombSpawner: BombSpawner
   private gameLives: number = 5
   private isGameOver: boolean = false
+
   constructor() {
     super('game-scene')
   }
@@ -26,8 +30,11 @@ export default class GameScene extends Phaser.Scene {
     this.load.image(GROUND_REF, platformSprite)
     this.load.image(STAR_REF, starSprite)
     this.load.image(BOMB_REF, bombSprite)
-
-    this.load.spritesheet('player',
+    this.load.audio(THEME_REF, [
+      themeMusicOgg,
+      themeMusicMp3
+    ]);
+    this.load.spritesheet(PLAYER_REF,
       playerSpriteSheet,
       { frameWidth: 16, frameHeight: 16 }
     )
@@ -38,19 +45,20 @@ export default class GameScene extends Phaser.Scene {
     this.player = this.createPlayer()
     this.physics.add.collider(this.player, this.platforms)
     this.stars = this.createStars()
-    this.scoreLabel = this.createScoreLabel(16, 16, 0)
-    this.bombSpawner = new BombSpawner(this, BOMB_REF)
-    const bombsGroup = this.bombSpawner.group
-
+    this.scoreLabel = this.createScoreLabel(16, 16, 0).setScrollFactor(0)
+    this.player.setCollideWorldBounds(false)
+    const music = this.sound.add(THEME_REF)
+    setTimeout(() => {
+      music.play()
+    }, 2000);
     this.physics.add.collider(this.stars, this.platforms)
-    this.physics.add.collider(this.stars, this.platforms)
-    this.physics.add.collider(bombsGroup, this.platforms)
-    this.physics.add.collider(this.player, bombsGroup, this.hitBomb, null, this)
-
-    this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this)
-
+    this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this)
+    this.cameras.main.setBounds(0, 0, config.width * 10, config.height)
+    this.cameras.main.startFollow(this.player)
+    this.cameras.main.setFollowOffset(-160, 0)
     this.keybinds = this.input.keyboard.createCursorKeys()
   }
+
   createPlatforms() {
     const platforms = this.physics.add.staticGroup()
     platforms.create(600, 400, GROUND_REF)
@@ -59,6 +67,7 @@ export default class GameScene extends Phaser.Scene {
     platforms.create(750, 220, GROUND_REF)
     return platforms;
   }
+
   createPlayer() {
     const player = this.physics.add.sprite(100, 450, PLAYER_REF)
     player.setBounce(0.2)
@@ -72,12 +81,6 @@ export default class GameScene extends Phaser.Scene {
     })
 
     this.anims.create({
-      key: 'turn',
-      frames: [{ key: PLAYER_REF, frame: 5 }],
-      frameRate: 20
-    })
-
-    this.anims.create({
       key: 'right',
       frames: this.anims.generateFrameNumbers(PLAYER_REF, { start: 6, end: 11 }),
       frameRate: 10,
@@ -85,10 +88,11 @@ export default class GameScene extends Phaser.Scene {
     })
     return player
   }
+
   createStars() {
     const starConfig = {
       key: STAR_REF,
-      repeat: 11,
+      repeat: 12,
       setXY: { x: 12, y: 0, stepX: 70 }
     }
     const stars = this.physics.add.group(starConfig)
@@ -99,7 +103,8 @@ export default class GameScene extends Phaser.Scene {
 
     return stars
   }
-  collectStar(player: any, star: { disableBody: (arg1: any, arg2: any) => any }) {
+
+  collectStar(player: any, star: any) {
     star.disableBody(true, true)
     this?.scoreLabel?.add(10)
     if (this.stars.countActive(true) === 0) {
@@ -108,26 +113,17 @@ export default class GameScene extends Phaser.Scene {
         child.enableBody(true, child.x, 0, true, true)
       })
     }
-
-    this.bombSpawner.spawn(player.x)
   }
+
   createScoreLabel(x: number, y: number, score: number) {
-    const style = { fontSize: '32px', fill: '#000' }
+    const style = { fontSize: '32px', fill: '#000', fontFamily: '"Press Start 2P", monospace, cursive' }
     const label = new ScoreLabel(this, x, y, score, style)
 
     this.add.existing(label)
 
     return label
   }
-  hitBomb(player, bomb) {
-    this.physics.pause()
 
-    player.setTint(0xff0000)
-
-    player.anims.play('turn')
-
-    this.isGameOver = true
-  }
   update() {
     if (this?.keybinds?.left?.isDown) {
       this?.player?.setVelocityX(-160)
@@ -149,4 +145,5 @@ export default class GameScene extends Phaser.Scene {
       this?.player?.setVelocityY(-330)
     }
   }
+
 }
