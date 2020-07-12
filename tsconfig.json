@@ -4,6 +4,13 @@
     "module": "es2020",
     "outDir": "./dist",
     "strict": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "rootDir": "src",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
