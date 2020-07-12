@@ -2,7 +2,7 @@ import 'phaser';
 import GameScene from './scenes/game';
 
 const gameContainer = document.getElementById('game-window')
-const config = {
+export const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,

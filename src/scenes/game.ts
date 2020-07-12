@@ -21,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
   private bombSpawner: BombSpawner
   private gameLives: number = 5
   private isGameOver: boolean = false
+  private music: Phaser.Sound.BaseSound
 
   constructor() {
     super('game-scene')
@@ -46,12 +47,18 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms)
     this.stars = this.createStars()
     this.scoreLabel = this.createScoreLabel(16, 16, 0).setScrollFactor(0)
-    this.player.setCollideWorldBounds(false)
-    const music = this.sound.add(THEME_REF)
+    this.bombSpawner = new BombSpawner(this, BOMB_REF)
+    this.player.setCollideWorldBounds(true)
+    this.music = this.sound.add(THEME_REF)
     setTimeout(() => {
-      music.play()
+      this.music.play()
     }, 2000);
+    const bombsGroup = this.bombSpawner.group
+
     this.physics.add.collider(this.stars, this.platforms)
+    this.physics.add.collider(bombsGroup, this.platforms)
+    this.physics.add.collider(this.player, bombsGroup, this.hitBomb, undefined, this)
+
     this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this)
     this.cameras.main.setBounds(0, 0, config.width * 10, config.height)
     this.cameras.main.startFollow(this.player)
@@ -81,6 +88,12 @@ export default class GameScene extends Phaser.Scene {
     })
 
     this.anims.create({
+      key: 'death',
+      frames: [{ key: PLAYER_REF, frame: 12 }],
+      frameRate: 20
+    })
+
+    this.anims.create({
       key: 'right',
       frames: this.anims.generateFrameNumbers(PLAYER_REF, { start: 6, end: 11 }),
       frameRate: 10,
@@ -92,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
   createStars() {
     const starConfig = {
       key: STAR_REF,
-      repeat: 12,
+      repeat: 11,
       setXY: { x: 12, y: 0, stepX: 70 }
     }
     const stars = this.physics.add.group(starConfig)
@@ -109,10 +122,12 @@ export default class GameScene extends Phaser.Scene {
     this?.scoreLabel?.add(10)
     if (this.stars.countActive(true) === 0) {
       //  A new batch of stars to collect
-      this.stars.children.iterate((child) => {
+      this.stars.children.iterate((child: { enableBody: (arg0: boolean, arg1: any, arg2: number, arg3: boolean, arg4: boolean) => void; x: any }) => {
         child.enableBody(true, child.x, 0, true, true)
       })
     }
+
+    this.bombSpawner.spawn(player.x)
   }
 
   createScoreLabel(x: number, y: number, score: number) {
@@ -124,26 +139,50 @@ export default class GameScene extends Phaser.Scene {
     return label
   }
 
-  update() {
-    if (this?.keybinds?.left?.isDown) {
-      this?.player?.setVelocityX(-160)
-
-      this?.player?.anims.play('left', true)
-    }
-    else if (this?.keybinds?.right?.isDown) {
-      this?.player?.setVelocityX(160)
-
-      this?.player?.anims.play('right', true)
-    }
-    else {
-      this?.player?.setVelocityX(0)
-
-      this?.player?.anims.play('turn')
-    }
-
-    if (this?.keybinds?.up?.isDown && this?.player?.body?.touching?.down) {
-      this?.player?.setVelocityY(-330)
+  hitBomb(player: { setTint: (arg0: number | undefined) => void }, _bomb: any) {
+    this.physics.pause()
+    player.setTint(0xff0000)
+    this.gameLives -= 1
+    setTimeout(() => {
+      player.setTint()
+      this.physics.resume()
+    }, 250);
+    if (this.gameLives === 0) {
+      this.isGameOver = true
     }
   }
+  restart(scene: Phaser.Scenes.ScenePlugin, music: Phaser.Sound.BaseSound) {
+    this.gameLives = 5
+    this.isGameOver = false;
+    music.stop()
+    scene.restart();
+  }
 
+  update() {
+    if (!this.isGameOver) {
+
+      if (this?.keybinds?.left?.isDown) {
+        this?.player?.setVelocityX(-160)
+
+        this?.player?.anims.play('left', true)
+      }
+      else if (this?.keybinds?.right?.isDown) {
+        this?.player?.setVelocityX(160)
+
+        this?.player?.anims.play('right', true)
+      }
+      else {
+        this?.player?.setVelocityX(0)
+
+        this?.player?.anims.play('turn')
+      }
+
+      if (this?.keybinds?.up?.isDown && this?.player?.body?.touching?.down) {
+        this?.player?.setVelocityY(-330)
+      }
+    }
+    else {
+      this.restart(this.scene, this.music)
+    }
+  }
 }
