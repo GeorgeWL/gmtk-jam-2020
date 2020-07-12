@@ -6,7 +6,7 @@ const ALLOWED_KEYBINDS = 'abcdefghijklmnopqrstuvwxyz';
 
 export default (keyReleased: EnumKeyBinds, currentConfig: IKeyMap) => {
   const currentKeys = [currentConfig.up, currentConfig.left, currentConfig.right]
-  const keysAllowedArray = ALLOWED_KEYBINDS.split('').filter(key => currentKeys.includes(key))
+  const keysAllowedArray = ALLOWED_KEYBINDS.split('').filter(key => !currentKeys.includes(key))
   const newKey = getRandomArrayItem(keysAllowedArray);
   const newConfig = { ...currentConfig, [EnumKeyBinds[keyReleased]]: newKey }
   return newConfig
