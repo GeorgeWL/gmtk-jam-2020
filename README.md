@@ -13,6 +13,12 @@ As the Jam Theme is "Out of Control", I thought an interesting idea would be a p
 
 But that whenever a key is released, the key which does that action is randomly replaced with another letter or number key (that's not already set).
 
-To make it not completly infuriating, the current keys for each action will be shown on screen at all times, and will have a visual signifier that have changed (likely a shuffle animation).
+To make it not completly infuriating, the current keys for each action will be shown on screen at all times, and will have a visual signifier that have changed (likely a shuffle animation.)
 
 As a latter addition to the mechanic, will have it that enemy collision (player character has no weapons and either limited hearts or a life meter) will change a random control which is not currently in use.
+
+# Mock UI stages
+
+Initial Sketchy UI Idea
+
+![alt text]('./screenshot/init-mock.gif')
