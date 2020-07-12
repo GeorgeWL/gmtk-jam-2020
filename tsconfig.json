@@ -18,11 +18,5 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": [
-      "./node_modules/phaser/types"
-    ],
-    "types": [
-      "Phaser"
-    ]
   }
 }
