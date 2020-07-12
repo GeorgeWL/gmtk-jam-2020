@@ -15,6 +15,12 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": [
+      "./node_modules/phaser/types"
+    ],
+    "types": [
+      "Phaser"
+    ]
   }
 }
