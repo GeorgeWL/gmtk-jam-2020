@@ -21,4 +21,4 @@ As a latter addition to the mechanic, will have it that enemy collision (player 
 
 Initial Sketchy UI Idea
 
-![alt text]('./screenshot/init-mock.gif')
+![initial mock gif](https://github.com/GeorgeWL/gmtk-jam-2020/blob/master/screenshots/init-mock.gif)
