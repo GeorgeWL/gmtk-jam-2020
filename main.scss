@@ -8,11 +8,7 @@ body {
   min-height: 100vh;
   font-family: "Press Start 2P", monospace, cursive;
 }
-#game-window {
-  position: relative;
-  padding: 6px;
-  height: 600px;
-  width: 800px;
+%pixel-border {
   border-top: 6px solid #000;
   border-bottom: 6px solid #000;
   &:before,
@@ -30,4 +26,21 @@ body {
   &:after {
     right: -6px;
   }
+}
+
+#game-window {
+  @extend %pixel-border;
+  position: relative;
+  padding: 6px;
+  height: 600px;
+  width: 800px;
+}
+em {
+  color: cornflowerblue;
+}
+.instructions {
+  @extend %pixel-border;
+  width: 850px;
+  margin: 20px;
+  padding: 6px;
 }
