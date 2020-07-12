@@ -1,5 +1,4 @@
 import 'phaser';
-
 export default class Demo extends Phaser.Scene {
   constructor() {
     super('demo');
@@ -31,12 +30,13 @@ export default class Demo extends Phaser.Scene {
     })
   }
 }
-
+const gameContainer = document.getElementById('game-window')
 const config = {
   type: Phaser.AUTO,
   backgroundColor: '#125555',
-  width: 800,
-  height: 600,
+  width: 812,
+  height: 375,
+  parent: gameContainer,
   scene: Demo
 };
 
