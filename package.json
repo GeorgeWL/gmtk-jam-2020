@@ -4,6 +4,7 @@
   "description": "Game Maker Toolkit 202 GameJam",
   "main": "index.js",
   "scripts": {
+    "start": "webpack-dev-server --open --config=webpack.dev.config.js",
     "build": "npx webpack --config=webpack.config.js",
     "test": "npx jest"
   },
@@ -29,6 +30,8 @@
     "phaser": "^3.23.0"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "html-webpack-plugin": "^4.3.0",
     "source-map-loader": "^1.0.1",
     "ts-loader": "^8.0.0",
     "typescript": "^3.9.6",
