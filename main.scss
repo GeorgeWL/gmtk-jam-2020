@@ -8,3 +8,26 @@ body {
   min-height: 100vh;
   font-family: "Press Start 2P", monospace, cursive;
 }
+#game-window {
+  position: relative;
+  padding: 6px;
+  height: 600px;
+  width: 800px;
+  border-top: 6px solid #000;
+  border-bottom: 6px solid #000;
+  &:before,
+  &:after {
+    content: "";
+    top: 0;
+    width: 6px;
+    height: 100%;
+    position: absolute;
+    background: #000;
+  }
+  &:before {
+    left: -6px;
+  }
+  &:after {
+    right: -6px;
+  }
+}
