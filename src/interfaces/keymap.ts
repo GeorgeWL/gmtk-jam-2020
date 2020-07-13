@@ -1,9 +1,10 @@
 export enum EnumKeyBinds {
-  up, left, right
+  up, left, right, down, null
 }
 
 export default interface IKeyMap {
-  up: string;
-  left: string;
-  right: string;
+  up: number;
+  left: number;
+  right: number;
+  down: number;
 }

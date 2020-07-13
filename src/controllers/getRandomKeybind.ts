@@ -2,7 +2,7 @@ import IKeyMap, { EnumKeyBinds } from "../interfaces/keymap";
 import getRandomArrayItem from "../helpers/getRandomArrayItem";
 
 // I could be cruel and add more, but that already feels a lot to keep track of
-const ALLOWED_KEYBINDS = 'abcdefghijklmnopqrstuvwxyz';
+const ALLOWED_KEYBINDS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 export default (keyReleased: EnumKeyBinds, currentConfig: IKeyMap) => {
   const currentKeys = [currentConfig.up, currentConfig.left, currentConfig.right]

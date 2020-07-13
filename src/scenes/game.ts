@@ -1,27 +1,37 @@
+import themeMusicMp3 from '../assets/audio/theme.mp3'
+import themeMusicOgg from '../assets/audio/theme.ogg'
+import bombSprite from '../assets/sprites/bomb.png'
+import platformSprite from '../assets/sprites/platform.png'
+import playerSpriteSheet from '../assets/sprites/run-sprites.png'
+import starSprite from '../assets/sprites/star.png'
+import { config } from '../index'
+import BombSpawner from './modules/bombSpawner'
+import ScoreLabel from './modules/scoreLabel'
+import IKeyMap, { EnumKeyBinds } from '../interfaces/keymap'
+import getRandomKeybind from '../controllers/getRandomKeybind'
 const GROUND_REF = 'ground'
 const PLAYER_REF = 'player'
 const STAR_REF = 'star'
 const BOMB_REF = 'bomb'
 const THEME_REF = 'theme'
-import starSprite from '../assets/sprites/star.png'
-import platformSprite from '../assets/sprites/platform.png'
-import bombSprite from '../assets/sprites/bomb.png'
-import playerSpriteSheet from '../assets/sprites/run-sprites.png'
-import themeMusicMp3 from '../assets/audio/theme.mp3'
-import themeMusicOgg from '../assets/audio/theme.ogg'
-import ScoreLabel from './modules/scoreLabel'
-import BombSpawner from './modules/bombSpawner'
-import { config } from '../index';
+const DEFAULT_KEYS: IKeyMap = {
+  up: Phaser.Input.Keyboard.KeyCodes.W,
+  down: Phaser.Input.Keyboard.KeyCodes.S,
+  left: Phaser.Input.Keyboard.KeyCodes.A,
+  right: Phaser.Input.Keyboard.KeyCodes.D
+}
 export default class GameScene extends Phaser.Scene {
-  private player: any
-  private platforms: any
-  private stars: any
-  private keybinds: any
-  private scoreLabel: ScoreLabel
-  private bombSpawner: BombSpawner
+  private player!: any
+  private platforms!: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group | Phaser.GameObjects.GameObject[] | Phaser.GameObjects.Group[]
+  private stars!: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group | Phaser.GameObjects.GameObject[] | Phaser.GameObjects.Group[]
+  private keybinds: Phaser.Input.Keyboard.KeyboardPlugin | undefined
+  private scoreLabel!: ScoreLabel
+  private bombSpawner!: BombSpawner
   private gameLives: number = 5
   private isGameOver: boolean = false
-  private music: Phaser.Sound.BaseSound
+  private music!: Phaser.Sound.BaseSound
+  private currentKeyMap: IKeyMap = DEFAULT_KEYS
+  private prevKeyPress: EnumKeyBinds = EnumKeyBinds.null
 
   constructor() {
     super('game-scene')
@@ -42,6 +52,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    const CAMERA_WIDTH = config.width * 4
+
     this.platforms = this.createPlatforms()
     this.player = this.createPlayer()
     this.physics.add.collider(this.player, this.platforms)
@@ -54,16 +66,19 @@ export default class GameScene extends Phaser.Scene {
       this.music.play()
     }, 2000);
     const bombsGroup = this.bombSpawner.group
-
+    const floor = this.physics.add.staticSprite(10, 600, GROUND_REF).setScrollFactor(0).setSize(CAMERA_WIDTH, 2)
+    floor.visible = false
+    this.physics.add.collider(this.player, floor, this.hitFloor, undefined, this)
     this.physics.add.collider(this.stars, this.platforms)
     this.physics.add.collider(bombsGroup, this.platforms)
     this.physics.add.collider(this.player, bombsGroup, this.hitBomb, undefined, this)
 
     this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this)
-    this.cameras.main.setBounds(0, 0, config.width * 10, config.height)
+    this.cameras.main.setBounds(0, 0, CAMERA_WIDTH, config.height)
+    this.physics.world.setBounds(0, 0, CAMERA_WIDTH, config.height);
     this.cameras.main.startFollow(this.player)
     this.cameras.main.setFollowOffset(-160, 0)
-    this.keybinds = this.input.keyboard.createCursorKeys()
+    this.keybinds = this.input.keyboard.addKeys(this.currentKeyMap)
   }
 
   createPlatforms() {
@@ -139,7 +154,7 @@ export default class GameScene extends Phaser.Scene {
     return label
   }
 
-  hitBomb(player: { setTint: (arg0: number | undefined) => void }, _bomb: any) {
+  hitBomb(player: { setTint: (arg0?: number | undefined) => void }, _bomb: any) {
     this.physics.pause()
     player.setTint(0xff0000)
     this.gameLives -= 1
@@ -151,34 +166,44 @@ export default class GameScene extends Phaser.Scene {
       this.isGameOver = true
     }
   }
+
+  hitFloor(_player: any, _floor: any) {
+    this.restart(this.scene, this.music)
+  }
+
   restart(scene: Phaser.Scenes.ScenePlugin, music: Phaser.Sound.BaseSound) {
     this.gameLives = 5
     this.isGameOver = false;
+    this.player.setVelocity(0)
     music.stop()
     scene.restart();
   }
 
   update() {
     if (!this.isGameOver) {
-
+      if (this.prevKeyPress !== EnumKeyBinds.null) {
+        const newKeyBind = getRandomKeybind(this.prevKeyPress, this.currentKeyMap)
+      }
       if (this?.keybinds?.left?.isDown) {
         this?.player?.setVelocityX(-160)
-
         this?.player?.anims.play('left', true)
+        this.prevKeyPress = EnumKeyBinds.left
       }
       else if (this?.keybinds?.right?.isDown) {
         this?.player?.setVelocityX(160)
-
         this?.player?.anims.play('right', true)
+        this.prevKeyPress = EnumKeyBinds.right
       }
       else {
         this?.player?.setVelocityX(0)
+        this?.player?.anims.stop()
 
-        this?.player?.anims.play('turn')
+        this.prevKeyPress = EnumKeyBinds.down
       }
 
       if (this?.keybinds?.up?.isDown && this?.player?.body?.touching?.down) {
         this?.player?.setVelocityY(-330)
+        this.prevKeyPress = EnumKeyBinds.right
       }
     }
     else {
